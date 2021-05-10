@@ -15,9 +15,10 @@
     },
     "autoload": {
         "psr-4": {
-            "App\\": "AkernaDrinks/",
+            "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
-            "Database\\Seeders\\": "database/seeders/"
+            "Database\\Seeders\\": "database/seeders/",
+            "Test\\": "tests"
         }
     },
     "autoload-dev": {

@@ -14,7 +14,11 @@ class CreateDrinksTable extends Migration
     public function up()
     {
         Schema::create('drinks', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
+            $table->string('name');
+            $table->integer('safe_level')->unsigned();
+
+            $table->softDeletes();
             $table->timestamps();
         });
     }
