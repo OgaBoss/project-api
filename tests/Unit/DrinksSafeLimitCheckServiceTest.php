@@ -2,12 +2,12 @@
 
 namespace Test\Unit;
 
-use App\Models\Drink;
-use Database\Seeders\DatabaseSeeder;
-use Database\Seeders\DrinksSeeder;
-use Laravel\Lumen\Testing\DatabaseMigrations;
 use Test\TestCase;
+use App\Models\Drink;
 use App\Services\DrinksService;
+use Database\Seeders\DrinksSeeder;
+use Database\Seeders\DatabaseSeeder;
+use Laravel\Lumen\Testing\DatabaseMigrations;
 use App\Services\DrinksSafeLimitCheckService;
 
 class DrinksSafeLimitCheckServiceTest extends TestCase
@@ -30,7 +30,7 @@ class DrinksSafeLimitCheckServiceTest extends TestCase
     }
 
     /** @test */
-    public function consumption_response_when_limit_exceed_safe_limit()
+    public function consumption_response_when_limit_exceeds_safe_limit()
     {
         $allDrinks = Drink::all();
         $selectedDrink = $allDrinks->where('safe_level', 100)->first();
@@ -41,5 +41,21 @@ class DrinksSafeLimitCheckServiceTest extends TestCase
         $response = $this->service->index(10, intval($selectedDrink->id));
 
         $this->assertEquals([], $response);
+    }
+
+    /** @test */
+    public function consumption_response_when_limit_is_below_safe_limit()
+    {
+        $allDrinks = Drink::all();
+        $selectedDrink = $allDrinks->where('safe_level', 100)->first();
+
+        $this->drinksRepository->expects($this->once())->method('getADrink')->willReturn($selectedDrink);
+        $this->drinksRepository->expects($this->once())->method('getAllDrinks')->willReturn($allDrinks);
+
+        $response = $this->service->index(3, intval($selectedDrink->id));
+
+        $this->assertCount(3, $response);
+        $this->assertCount(1, $response['option1']);
+        $this->assertCount(4, $response['option2']);
     }
 }

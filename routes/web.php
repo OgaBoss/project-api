@@ -18,3 +18,4 @@ $router->get('/', function () use ($router) {
 });
 
 $router->get('/drinks', 'DrinksController@index');
+$router->get('/drinks/{drinkId}/safe_limit_check', 'DrinksSafeLevelCheckController@index');

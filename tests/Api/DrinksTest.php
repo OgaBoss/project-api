@@ -21,4 +21,10 @@ class DrinksTest extends TestCase
                 'data' => $drink,
             ]);
     }
+
+    /** @test */
+    public function drink_limit_possible_response()
+    {
+
+    }
 }

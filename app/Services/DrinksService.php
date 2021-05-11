@@ -12,7 +12,7 @@ class DrinksService
         return Drink::all();
     }
 
-    public function getADrink(int $drinkId): Drink
+    public function getADrink(string $drinkId): Drink
     {
         return Drink::find($drinkId);
     }

@@ -26,7 +26,12 @@ class DrinksSafeLimitCheckService
         $this->drinksRepository = $drinksRepository;
     }
 
-    public function index(int $quantity, int $drinkId): array
+    /**
+     * @param int $quantity
+     * @param string $drinkId
+     * @return array
+     */
+    public function index(int $quantity, string $drinkId): array
     {
         // Get the selected Drink
         $this->setSelectedDrink($drinkId);
@@ -45,30 +50,43 @@ class DrinksSafeLimitCheckService
         ];
     }
 
+    /**
+     * @return array[]
+     */
     protected function selectedDrinkPossibleConsumptionLimit(): array
     {
         return [
-            'quantity' => intdiv($this->remainderSafeLimit, $this->selectedDrink->safe_level),
-            'drink' => $this->selectedDrink->name,
+            [
+                'quantity' => intdiv($this->remainderSafeLimit, $this->selectedDrink->safe_level),
+                'drink' => $this->selectedDrink->name,
+            ]
         ];
     }
 
+    /**
+     * @return array
+     */
     protected function otherDrinksPossibleConsumptionLimit(): array
     {
         return $this->otherDrinks->map(function($drink){
-            return [
-                'quantity' => intdiv($this->remainderSafeLimit, $drink->safe_level),
-                'drink' => $drink->name,
-            ];
-        })->toArray();
+            $remainder = intdiv($this->remainderSafeLimit, $drink->safe_level);
+            if ($remainder > 0) {
+                return [
+                    'quantity' => intdiv($this->remainderSafeLimit, $drink->safe_level),
+                    'drink' => $drink->name,
+                ];
+            }
+        })->filter()->toArray();
     }
 
+    /**
+     * @return array
+     */
     protected function otherDrinksCombinedConsumptionLimit(): array
     {
         return $this->otherDrinks->map(function($drink){
-            $this->remainderSafeLimit = $this->remainderSafeLimit - $drink->safe_level;
-
             if ($this->remainderSafeLimit % $drink->safe_level > 0) {
+                $this->remainderSafeLimit = $this->remainderSafeLimit - $drink->safe_level;
 
                 return [
                     'quantity' => 1,
@@ -86,7 +104,7 @@ class DrinksSafeLimitCheckService
         });
     }
 
-    protected function setSelectedDrink(int $drinkId): void
+    protected function setSelectedDrink(string $drinkId): void
     {
         $this->selectedDrink = $this->drinksRepository->getADrink($drinkId);
     }
