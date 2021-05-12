@@ -36,11 +36,17 @@ class DrinksSafeLevelCheckController extends Controller
                 'data' => $this->service->index($request->query('quantity'), $drinkId),
                 'status' => 'success'
             ], 200);
-        } catch (\Throwable $exception) {
+        } catch (MissingQuantityException $exception) {
             return response()->json([
                 'status' => 'error',
                 'data' => [],
                 'message' => $exception->getMessage()
+            ], 500);
+        } catch (\Throwable $exception) {
+            return response()->json([
+                'status' => 'error',
+                'data' => [],
+                'message' => 'Oops, something went wrong, please try again.'
             ], 500);
         }
     }

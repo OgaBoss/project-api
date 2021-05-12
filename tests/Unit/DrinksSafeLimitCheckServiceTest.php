@@ -33,12 +33,13 @@ class DrinksSafeLimitCheckServiceTest extends TestCase
     public function consumption_response_when_limit_exceeds_safe_limit()
     {
         $allDrinks = Drink::all();
-        $selectedDrink = $allDrinks->where('safe_level', 100)->first();
+        $selectedDrink = $allDrinks->where('safe_level', 75)->first();
 
         $this->drinksRepository->expects($this->once())->method('getADrink')->willReturn($selectedDrink);
         $this->drinksRepository->expects($this->once())->method('getAllDrinks')->willReturn($allDrinks);
 
         $response = $this->service->index(10, intval($selectedDrink->id));
+
 
         $this->assertEquals([], $response);
     }
@@ -55,7 +56,7 @@ class DrinksSafeLimitCheckServiceTest extends TestCase
         $response = $this->service->index(3, intval($selectedDrink->id));
 
         $this->assertCount(3, $response);
-        $this->assertCount(1, $response['option1']);
+        $this->assertEquals(2, $response['option1']['quantity']);
         $this->assertCount(4, $response['option2']);
     }
 }

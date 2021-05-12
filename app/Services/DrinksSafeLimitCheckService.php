@@ -39,6 +39,9 @@ class DrinksSafeLimitCheckService
 
         // Get the consumed limit
         $this->remainderSafeLimit = self::SAFE_LIMIT - ($quantity * $this->selectedDrink->safe_level);
+
+        // if remainder limit is 0
+        // User cannot consume any drink
         if ($this->remainderSafeLimit < 0) {
             return [];
         }
@@ -51,19 +54,28 @@ class DrinksSafeLimitCheckService
     }
 
     /**
+     * Return how many servings of the selected drink
+     * the user can consume
      * @return array[]
      */
     protected function selectedDrinkPossibleConsumptionLimit(): array
     {
-        return [
-            [
-                'quantity' => intdiv($this->remainderSafeLimit, $this->selectedDrink->safe_level),
+        $remainder = intdiv($this->remainderSafeLimit, $this->selectedDrink->safe_level);
+        if ($remainder) {
+            return [
+                'quantity' => $remainder,
                 'drink' => $this->selectedDrink->name,
-            ]
-        ];
+                'caffeine_level' => $this->selectedDrink->safe_level
+            ];
+        }
+
+        return [];
     }
 
     /**
+     * Return how many servings of each remaining drink
+     * a user can consume separately
+     *
      * @return array
      */
     protected function otherDrinksPossibleConsumptionLimit(): array
@@ -74,26 +86,30 @@ class DrinksSafeLimitCheckService
                 return [
                     'quantity' => intdiv($this->remainderSafeLimit, $drink->safe_level),
                     'drink' => $drink->name,
+                    'caffeine_level' => $drink->safe_level
                 ];
             }
         })->filter()->toArray();
     }
 
     /**
+     * Return how many servings of each remaining drink
+     * a user can consume combined
+     *
      * @return array
      */
     protected function otherDrinksCombinedConsumptionLimit(): array
     {
         return $this->otherDrinks->map(function($drink){
-            if ($this->remainderSafeLimit % $drink->safe_level > 0) {
+            if (intdiv($this->remainderSafeLimit, $drink->safe_level) > 0) {
                 $this->remainderSafeLimit = $this->remainderSafeLimit - $drink->safe_level;
 
                 return [
                     'quantity' => 1,
                     'drink' => $drink->name,
+                    'caffeine_level' => $drink->safe_level
                 ];
             }
-
         })->filter()->toArray();
     }
 
